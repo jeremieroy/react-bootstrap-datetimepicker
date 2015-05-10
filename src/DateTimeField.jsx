@@ -74,8 +74,18 @@ DateTimeField = React.createClass({
   },
   setSelectedDate: function(e) {
     if (e.target.className && !e.target.className.match(/disabled/g)) {
+      var newDate = this.state.viewDate.clone();
+      newDate = newDate.date("1"); // avoid end of month day count issue due to following date modification
+      if(e.target.className.match(/old/g)){
+        newDate.subtract(1, "month"); // this is a day from the previous month
+      }else if(e.target.className.match(/new/g)){
+        newDate.add(1, "month"); // this is a day from the next month
+      }
+      // update day, hour, minute
+      newDate = newDate.date(parseInt(e.target.innerHTML)).hour(this.state.selectedDate.hours()).minute(this.state.selectedDate.minutes());
+
       return this.setState({
-        selectedDate: this.state.viewDate.clone().date(parseInt(e.target.innerHTML)).hour(this.state.selectedDate.hours()).minute(this.state.selectedDate.minutes())
+        selectedDate: newDate
       }, function () {
         this.closePicker();
         this.props.onChange(this.state.selectedDate.format(this.props.format));
