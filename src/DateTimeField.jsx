@@ -44,21 +44,29 @@ DateTimeField = React.createClass({
       },
       viewDate: moment(this.props.dateTime, this.props.format, true).startOf("month"),
       selectedDate: moment(this.props.dateTime, this.props.format, true),
-      inputValue: typeof this.props.defaultText != 'undefined' ?  this.props.defaultText : moment(this.props.dateTime, this.props.format, true).format(this.props.inputFormat)
+      inputValue: typeof this.props.defaultText != 'undefined' ?  this.props.defaultText : moment(this.props.dateTime, this.props.format, true).format(this.props.inputFormat),
+      isValid : true
     };
   },
   componentWillReceiveProps: function(nextProps) {
-    if(moment(nextProps.dateTime, nextProps.format, true).isValid()) {
+    var isValid = moment(nextProps.dateTime, nextProps.format, true).isValid();
+    if(isValid) {
       return this.setState({
+        isValid:isValid,
         viewDate: moment(nextProps.dateTime, nextProps.format, true).startOf("month"),
         selectedDate: moment(nextProps.dateTime, nextProps.format, true),
         inputValue: moment(nextProps.dateTime, nextProps.format, true).format(nextProps.inputFormat)
+      });
+    }else{
+      return this.setState({
+        isValid:isValid
       });
     }
   },
   onChange: function(event) {
     var value = event.target == null ? event : event.target.value;
-    if (moment(value, this.props.inputFormat, true).isValid()) {
+    var isValid = moment(value, this.props.inputFormat, true).isValid();
+    if (isValid) {
       this.setState({
         selectedDate: moment(value, this.props.inputFormat, true),
         viewDate: moment(value, this.props.inputFormat, true).startOf("month")
@@ -66,6 +74,7 @@ DateTimeField = React.createClass({
     }
 
     return this.setState({
+      isValid:isValid,
       inputValue: value
     }, function() {
       return this.props.onChange(moment(this.state.inputValue, this.props.inputFormat, true).format(this.props.format));
@@ -304,7 +313,7 @@ DateTimeField = React.createClass({
                   togglePicker={this.togglePicker}
                   togglePeriod={this.togglePeriod}
             />
-            <div className="input-group date" ref="datetimepicker">
+            <div className={"input-group date"+((this.state.isValid)?"":" has-error")} ref="datetimepicker">
               <input type="text" className="form-control" onChange={this.onChange} value={this.state.inputValue} {...this.props.inputProps}/>
               <span className="input-group-addon" onClick={this.onClick} onBlur={this.onBlur} ref="dtpbutton"><Glyphicon glyph="calendar" /></span>
             </div>
